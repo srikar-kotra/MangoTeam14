@@ -144,14 +144,24 @@ public class UserDao extends BaseDao {
             + "  username=?, password=?, email=?, phone=?, admin=?, disabled=?, homeUrl=?, receiveAlarmEmails=?, "
             + "  receiveOwnAuditEvents=? " + "where id=?";
 
-    void updateUser(User user) {
+void updateUser(User user) {
+    try {
+        // Changing to hash the password
+        String hashedPassword = hashPassword(user.getPassword());
+
         ejt.update(
                 USER_UPDATE,
-                new Object[] { user.getUsername(), user.getPassword(), user.getEmail(), user.getPhone(),
+                new Object[] { user.getUsername(), hashedPassword, user.getEmail(), user.getPhone(),
                         boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), user.getHomeUrl(),
                         user.getReceiveAlarmEmails(), boolToChar(user.isReceiveOwnAuditEvents()), user.getId() });
         saveRelationalData(user);
+    } catch (Exception e) {
+        // Log or handle the exception
+        e.printStackTrace();
+        // Throw a custom exception or handle the error as needed
+        throw new RuntimeException("Error updating user password", e);
     }
+}
 
     private void saveRelationalData(final User user) {
         // Delete existing permissions.
