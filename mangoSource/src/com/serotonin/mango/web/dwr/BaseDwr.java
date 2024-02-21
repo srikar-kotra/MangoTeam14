@@ -122,10 +122,16 @@ abstract public class BaseDwr {
         }
     }
 
-    protected void setPrettyText(WatchListState state, DataPointVO pointVO, Map<String, Object> model,
+ protected void setPrettyText(WatchListState state, DataPointVO pointVO, Map<String, Object> model,
             PointValueTime pointValue) {
         String prettyText = Functions.getHtmlText(pointVO, pointValue);
         model.put("text", prettyText);
+        // This method has been modified to truncate the values of decimals
+        if (pointValue != null) {
+            double value = pointValue.getDoubleValue();
+            String formattedValue = String.format("%.2f", value);
+            state.setValue(formattedValue);
+        }
         if (!ObjectUtils.isEqual(pointVO.lastValue(), pointValue)) {
             state.setValue(prettyText);
             if (pointValue != null)
