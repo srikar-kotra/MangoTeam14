@@ -141,7 +141,7 @@ public class MiscDwr extends BaseDwr {
             user.setMuted(!user.isMuted());
             return user.isMuted();
         }
-        return false;
+        return true;
     }
 
     public Map<String, Object> getDocumentationItem(String documentId) {
