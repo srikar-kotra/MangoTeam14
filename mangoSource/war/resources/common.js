@@ -837,7 +837,7 @@ function setSilenced(eventId, silenced) {
         updateImg(imgNode, "images/sound_none.png", mango.i18n["events.silence"], true, "inline");
 }
 
-function setUserMuted(muted=true) {
+function setUserMuted(muted) {
     mango.soundPlayer.setMute(muted);
     var imgNode = $("userMutedImg");
     if (muted)
