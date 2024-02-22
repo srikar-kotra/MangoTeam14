@@ -144,14 +144,28 @@ public class UserDao extends BaseDao {
             + "  username=?, password=?, email=?, phone=?, admin=?, disabled=?, homeUrl=?, receiveAlarmEmails=?, "
             + "  receiveOwnAuditEvents=? " + "where id=?";
 
-    void updateUser(User user) {
+void updateUser(User user) {
+    try {
+        // Ensure non-null values for fields
+        String username = (user.getUsername() != null) ? user.getUsername() : "";
+        String password = (user.getPassword() != null) ? user.getPassword() : "";
+        String email = (user.getEmail() != null) ? user.getEmail() : "";
+        String phone = (user.getPhone() != null) ? user.getPhone() : "";
+        String homeUrl = (user.getHomeUrl() != null) ? user.getHomeUrl() : "";
+
         ejt.update(
                 USER_UPDATE,
-                new Object[] { user.getUsername(), user.getPassword(), user.getEmail(), user.getPhone(),
-                        boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), user.getHomeUrl(),
+                new Object[] { username, password, email, phone,
+                        boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), homeUrl,
                         user.getReceiveAlarmEmails(), boolToChar(user.isReceiveOwnAuditEvents()), user.getId() });
         saveRelationalData(user);
+    } catch (Exception e) {
+        // Log or handle the exception
+        e.printStackTrace();
+        // Throw a custom exception or handle the error as needed
+        throw new RuntimeException("Error updating user", e);
     }
+}
 
     private void saveRelationalData(final User user) {
         // Delete existing permissions.
