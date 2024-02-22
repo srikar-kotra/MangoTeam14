@@ -35,6 +35,7 @@
   </c:forEach>
   </table>
 </c:if>
+ <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <c:if test="${!empty average}">
   <c:choose>
     <c:when test="${noData}">
