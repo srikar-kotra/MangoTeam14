@@ -123,10 +123,11 @@ if (typeof(soundManager) != "undefined") {
         soundManager.onloadFinished = true;
     };
 }
-
+//
 function SoundPlayer() {
     this.soundId;
     this.mute = false;
+	
     this.timeoutId;
     var self = this;
     
