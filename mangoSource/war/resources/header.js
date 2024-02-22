@@ -126,7 +126,7 @@ if (typeof(soundManager) != "undefined") {
 
 function SoundPlayer() {
     this.soundId;
-    this.mute = true;
+    this.mute = false;
     this.timeoutId;
     var self = this;
     
