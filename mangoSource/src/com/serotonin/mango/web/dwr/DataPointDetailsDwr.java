@@ -90,6 +90,8 @@ public class DataPointDetailsDwr extends BaseDwr {
 
         for (PointValueTime pvt : rawData) {
             RenderedPointValueTime rpvt = new RenderedPointValueTime();
+            //the change is rolled back
+            // rpvt.setValue(String.format("%.2f", pvt.getDoubleValue()));
             rpvt.setValue(Functions.getHtmlText(pointVO, pvt));
             rpvt.setTime(Functions.getTime(pvt));
             if (pvt.isAnnotated()) {
