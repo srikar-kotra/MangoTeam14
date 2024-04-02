@@ -67,8 +67,7 @@ public class ReportsDwr extends BaseDwr {
         if (id == Common.NEW_ID) {
             report = new ReportVO();
             report.setName(getMessage("common.newName"));
-        }
-        else {
+        } else {
             report = new ReportDao().getReport(id);
 
             if (copy) {
@@ -82,12 +81,12 @@ public class ReportsDwr extends BaseDwr {
     }
 
     public DwrResponseI18n saveReport(int id, String name, List<ReportPointVO> points, int includeEvents,
-            boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
-            int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
-            int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
-            int toDay, int toHour, int toMinute, boolean schedule, int schedulePeriod, int runDelayMinutes,
-            String scheduleCron, boolean email, boolean includeData, boolean zipData,
-            List<RecipientListEntryBean> recipients) {
+                                      boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
+                                      int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
+                                      int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
+                                      int toDay, int toHour, int toMinute, boolean schedule, int schedulePeriod, int runDelayMinutes,
+                                      String scheduleCron, boolean email, boolean includeData, boolean zipData,
+                                      List<RecipientListEntryBean> recipients) {
 
         DwrResponseI18n response = new DwrResponseI18n();
 
@@ -99,12 +98,10 @@ public class ReportsDwr extends BaseDwr {
                 // Check the cron pattern.
                 try {
                     new CronTimerTrigger(scheduleCron);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     response.addContextualMessage("scheduleCron", "reports.validate.cron", e.getMessage());
                 }
-            }
-            else {
+            } else {
                 if (runDelayMinutes < 0)
                     response.addContextualMessage("runDelayMinutes", "reports.validate.lessThan0");
                 else if (runDelayMinutes > 59)
@@ -124,8 +121,7 @@ public class ReportsDwr extends BaseDwr {
         if (id == Common.NEW_ID) {
             report = new ReportVO();
             report.setUserId(user.getId());
-        }
-        else
+        } else
             report = reportDao.getReport(id);
 
         Permissions.ensureReportPermission(user, report);
@@ -174,51 +170,63 @@ public class ReportsDwr extends BaseDwr {
     }
 
     public DwrResponseI18n runReport(String name, List<ReportPointVO> points, int includeEvents,
-            boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
-            int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
-            int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
-            int toDay, int toHour, int toMinute, boolean email, boolean includeData, boolean zipData,
-            List<RecipientListEntryBean> recipients) {
+                                     boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
+                                     int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
+                                     int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
+                                     int toDay, int toHour, int toMinute, boolean email, boolean includeData, boolean zipData,
+                                     List<RecipientListEntryBean> recipients) {
         DwrResponseI18n response = new DwrResponseI18n();
 
         // Basic validation
         validateData(response, name, points, dateRangeType, relativeDateType, previousPeriodCount, pastPeriodCount);
 
         if (!response.getHasMessages()) {
-            ReportVO report = new ReportVO();
-            report.setName(name);
-            report.setUserId(Common.getUser().getId());
-            report.setPoints(points);
-            report.setIncludeEvents(includeEvents);
-            report.setIncludeUserComments(includeUserComments);
-            report.setDateRangeType(dateRangeType);
-            report.setRelativeDateType(relativeDateType);
-            report.setPreviousPeriodCount(previousPeriodCount);
-            report.setPreviousPeriodType(previousPeriodType);
-            report.setPastPeriodCount(pastPeriodCount);
-            report.setPastPeriodType(pastPeriodType);
-            report.setFromNone(fromNone);
-            report.setFromYear(fromYear);
-            report.setFromMonth(fromMonth);
-            report.setFromDay(fromDay);
-            report.setFromHour(fromHour);
-            report.setFromMinute(fromMinute);
-            report.setToNone(toNone);
-            report.setToYear(toYear);
-            report.setToMonth(toMonth);
-            report.setToDay(toDay);
-            report.setToHour(toHour);
-            report.setToMinute(toMinute);
-            report.setEmail(email);
-            report.setIncludeData(includeData);
-            report.setZipData(zipData);
-            report.setRecipients(recipients);
-
+            ReportVO report = report(name, points, includeEvents, includeUserComments, dateRangeType, relativeDateType,
+					previousPeriodCount, previousPeriodType, pastPeriodCount, pastPeriodType, fromNone, fromYear,
+					fromMonth, fromDay, fromHour, fromMinute, toNone, toYear, toMonth, toDay, toHour, toMinute, email,
+					includeData, zipData, recipients);
+			report.setUserId(Common.getUser().getId());
             ReportWorkItem.queueReport(report);
         }
 
         return response;
     }
+
+	private ReportVO report(String name, List<ReportPointVO> points, int includeEvents, boolean includeUserComments,
+			int dateRangeType, int relativeDateType, int previousPeriodCount, int previousPeriodType,
+			int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear, int fromMonth, int fromDay,
+			int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth, int toDay, int toHour, int toMinute,
+			boolean email, boolean includeData, boolean zipData, List<RecipientListEntryBean> recipients) {
+		ReportVO report = new ReportVO();
+		report.setName(name);
+		report.setUserId(Common.getUser().getId());
+		report.setPoints(points);
+		report.setIncludeEvents(includeEvents);
+		report.setIncludeUserComments(includeUserComments);
+		report.setDateRangeType(dateRangeType);
+		report.setRelativeDateType(relativeDateType);
+		report.setPreviousPeriodCount(previousPeriodCount);
+		report.setPreviousPeriodType(previousPeriodType);
+		report.setPastPeriodCount(pastPeriodCount);
+		report.setPastPeriodType(pastPeriodType);
+		report.setFromNone(fromNone);
+		report.setFromYear(fromYear);
+		report.setFromMonth(fromMonth);
+		report.setFromDay(fromDay);
+		report.setFromHour(fromHour);
+		report.setFromMinute(fromMinute);
+		report.setToNone(toNone);
+		report.setToYear(toYear);
+		report.setToMonth(toMonth);
+		report.setToDay(toDay);
+		report.setToHour(toHour);
+		report.setToMinute(toMinute);
+		report.setEmail(email);
+		report.setIncludeData(includeData);
+		report.setZipData(zipData);
+		report.setRecipients(recipients);
+		return report;
+	}
 
     public void deleteReport(int id) {
         ReportDao reportDao = new ReportDao();
@@ -232,7 +240,7 @@ public class ReportsDwr extends BaseDwr {
     }
 
     private void validateData(DwrResponseI18n response, String name, List<ReportPointVO> points, int dateRangeType,
-            int relativeDateType, int previousPeriodCount, int pastPeriodCount) {
+                              int relativeDateType, int previousPeriodCount, int pastPeriodCount) {
         if (StringUtils.isEmpty(name))
             response.addContextualMessage("name", "reports.validate.required");
         if (StringUtils.isLengthGreaterThan(name, 100))
@@ -257,8 +265,7 @@ public class ReportsDwr extends BaseDwr {
             try {
                 if (!StringUtils.isEmpty(point.getColour()))
                     ColorUtils.toColor(point.getColour());
-            }
-            catch (InvalidArgumentException e) {
+            } catch (InvalidArgumentException e) {
                 response.addContextualMessage("points", "reports.validate.colour", point.getColour());
             }
         }
@@ -295,13 +302,18 @@ public class ReportsDwr extends BaseDwr {
         ReportVO report = new ReportVO();
         report.setName(LocalizableMessage.getMessage(getResourceBundle(), "common.copyPrefix", watchList.getName()));
         for (DataPointVO dp : watchList.getPointList()) {
-            ReportPointVO rp = new ReportPointVO();
-            rp.setPointId(dp.getId());
-            rp.setColour(dp.getChartColour());
-            rp.setConsolidatedChart(true);
-            report.getPoints().add(rp);
+            ReportPointVO rp = rp(dp);
+			report.getPoints().add(rp);
         }
 
         return report;
     }
+
+	private ReportPointVO rp(DataPointVO dp) {
+		ReportPointVO rp = new ReportPointVO();
+		rp.setPointId(dp.getId());
+		rp.setColour(dp.getChartColour());
+		rp.setConsolidatedChart(true);
+		return rp;
+	}
 }
