@@ -1,5 +1,7 @@
 package com.serotonin.mango.vo.event;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,8 @@ import com.serotonin.mango.util.ExportCodes;
 import com.serotonin.mango.util.LocalizableJsonException;
 import com.serotonin.mango.vo.dataSource.DataSourceVO;
 import com.serotonin.timer.CronTimerTrigger;
+import com.serotonin.timer.OneTimeTrigger;
+import com.serotonin.timer.TimerTrigger;
 import com.serotonin.util.StringUtils;
 import com.serotonin.web.dwr.DwrResponseI18n;
 import com.serotonin.web.i18n.LocalizableMessage;
@@ -42,6 +46,7 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
     public static final int TYPE_CRON = 8;
 
     public static ExportCodes TYPE_CODES = new ExportCodes();
+
     static {
         TYPE_CODES.addElement(TYPE_MANUAL, "MANUAL", "maintenanceEvents.type.manual");
         TYPE_CODES.addElement(TYPE_HOURLY, "HOURLY", "maintenanceEvents.type.hour");
@@ -310,16 +315,14 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
             message = new LocalizableMessage("maintenanceEvents.schedule.onceUntil", dataSourceName,
                     DateFunctions.getTime(new DateTime(activeYear, activeMonth, activeDay, activeHour, activeMinute,
                             activeSecond, 0).getMillis()), DateFunctions.getTime(new DateTime(inactiveYear,
-                            inactiveMonth, inactiveDay, inactiveHour, inactiveMinute, inactiveSecond, 0).getMillis()));
-        }
-        else if (scheduleType == TYPE_HOURLY) {
+                    inactiveMonth, inactiveDay, inactiveHour, inactiveMinute, inactiveSecond, 0).getMillis()));
+        } else if (scheduleType == TYPE_HOURLY) {
             String activeTime = StringUtils.pad(Integer.toString(activeMinute), '0', 2) + ":"
                     + StringUtils.pad(Integer.toString(activeSecond), '0', 2);
             message = new LocalizableMessage("maintenanceEvents.schedule.hoursUntil", dataSourceName, activeTime,
                     StringUtils.pad(Integer.toString(inactiveMinute), '0', 2) + ":"
                             + StringUtils.pad(Integer.toString(inactiveSecond), '0', 2));
-        }
-        else if (scheduleType == TYPE_DAILY)
+        } else if (scheduleType == TYPE_DAILY)
             message = new LocalizableMessage("maintenanceEvents.schedule.dailyUntil", dataSourceName, activeTime(),
                     inactiveTime());
         else if (scheduleType == TYPE_WEEKLY)
@@ -342,22 +345,22 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
 
     private LocalizableMessage getTypeMessage() {
         switch (scheduleType) {
-        case TYPE_MANUAL:
-            return new LocalizableMessage("maintenanceEvents.type.manual");
-        case TYPE_HOURLY:
-            return new LocalizableMessage("maintenanceEvents.type.hour");
-        case TYPE_DAILY:
-            return new LocalizableMessage("maintenanceEvents.type.day");
-        case TYPE_WEEKLY:
-            return new LocalizableMessage("maintenanceEvents.type.week");
-        case TYPE_MONTHLY:
-            return new LocalizableMessage("maintenanceEvents.type.month");
-        case TYPE_YEARLY:
-            return new LocalizableMessage("maintenanceEvents.type.year");
-        case TYPE_ONCE:
-            return new LocalizableMessage("maintenanceEvents.type.once");
-        case TYPE_CRON:
-            return new LocalizableMessage("maintenanceEvents.type.cron");
+            case TYPE_MANUAL:
+                return new LocalizableMessage("maintenanceEvents.type.manual");
+            case TYPE_HOURLY:
+                return new LocalizableMessage("maintenanceEvents.type.hour");
+            case TYPE_DAILY:
+                return new LocalizableMessage("maintenanceEvents.type.day");
+            case TYPE_WEEKLY:
+                return new LocalizableMessage("maintenanceEvents.type.week");
+            case TYPE_MONTHLY:
+                return new LocalizableMessage("maintenanceEvents.type.month");
+            case TYPE_YEARLY:
+                return new LocalizableMessage("maintenanceEvents.type.year");
+            case TYPE_ONCE:
+                return new LocalizableMessage("maintenanceEvents.type.once");
+            case TYPE_CRON:
+                return new LocalizableMessage("maintenanceEvents.type.cron");
         }
         return null;
     }
@@ -374,8 +377,8 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
                 + StringUtils.pad(Integer.toString(inactiveSecond), '0', 2);
     }
 
-    private static final String[] weekdays = { "", "common.day.mon", "common.day.tue", "common.day.wed",
-            "common.day.thu", "common.day.fri", "common.day.sat", "common.day.sun" };
+    private static final String[] weekdays = {"", "common.day.mon", "common.day.tue", "common.day.wed",
+            "common.day.thu", "common.day.fri", "common.day.sat", "common.day.sun"};
 
     private LocalizableMessage weekday(boolean active) {
         int day = activeDay;
@@ -405,9 +408,9 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
         return new LocalizableMessage("common.counting.th", Integer.toString(day));
     }
 
-    private static final String[] months = { "", "common.month.jan", "common.month.feb", "common.month.mar",
+    private static final String[] months = {"", "common.month.jan", "common.month.feb", "common.month.mar",
             "common.month.apr", "common.month.may", "common.month.jun", "common.month.jul", "common.month.aug",
-            "common.month.sep", "common.month.oct", "common.month.nov", "common.month.dec" };
+            "common.month.sep", "common.month.oct", "common.month.nov", "common.month.dec"};
 
     private LocalizableMessage month(boolean active) {
         int day = activeDay;
@@ -432,15 +435,13 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
         if (scheduleType == TYPE_CRON) {
             try {
                 new CronTimerTrigger(activeCron);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 response.addContextualMessage("activeCron", "maintenanceEvents.validate.activeCron", e.getMessage());
             }
 
             try {
                 new CronTimerTrigger(inactiveCron);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 response.addContextualMessage("inactiveCron", "maintenanceEvents.validate.inactiveCron", e.getMessage());
             }
         }
@@ -449,15 +450,13 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
         MaintenanceEventRT rt = new MaintenanceEventRT(this);
         try {
             rt.createTrigger(true);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             response.addContextualMessage("activeCron", "maintenanceEvents.validate.activeTrigger", e.getMessage());
         }
 
         try {
             rt.createTrigger(false);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             response.addContextualMessage("inactiveCron", "maintenanceEvents.validate.inactiveTrigger", e.getMessage());
         }
 
@@ -540,4 +539,71 @@ public class MaintenanceEventVO implements ChangeComparable<MaintenanceEventVO>,
                         TYPE_CODES.getCodeList());
         }
     }
+
+	public TimerTrigger createTrigger(boolean activeTrigger) {
+		if (getScheduleType() == MaintenanceEventVO.TYPE_MANUAL)
+			return null;
+		if (getScheduleType() == MaintenanceEventVO.TYPE_CRON) {
+			try {
+				if (activeTrigger)
+					return new CronTimerTrigger(getActiveCron());
+				return new CronTimerTrigger(getInactiveCron());
+			} catch (ParseException e) {
+				throw new ShouldNeverHappenException(e);
+			}
+		}
+		if (getScheduleType() == MaintenanceEventVO.TYPE_ONCE) {
+			DateTime dt;
+			if (activeTrigger)
+				dt = new DateTime(getActiveYear(), getActiveMonth(), getActiveDay(), getActiveHour(), getActiveMinute(),
+						getActiveSecond(), 0);
+			else
+				dt = new DateTime(getInactiveYear(), getInactiveMonth(), getInactiveDay(), getInactiveHour(),
+						getInactiveMinute(), getInactiveSecond(), 0);
+			return new OneTimeTrigger(new Date(dt.getMillis()));
+		}
+		int month = getActiveMonth();
+		int day = getActiveDay();
+		int hour = getActiveHour();
+		int minute = getActiveMinute();
+		int second = getActiveSecond();
+		if (!activeTrigger) {
+			month = getInactiveMonth();
+			day = getInactiveDay();
+			hour = getInactiveHour();
+			minute = getInactiveMinute();
+			second = getInactiveSecond();
+		}
+		StringBuilder expression = new StringBuilder();
+		expression.append(second).append(' ');
+		expression.append(minute).append(' ');
+		if (getScheduleType() == MaintenanceEventVO.TYPE_HOURLY)
+			expression.append("* * * ?");
+		else {
+			expression.append(hour).append(' ');
+			if (getScheduleType() == MaintenanceEventVO.TYPE_DAILY)
+				expression.append("* * ?");
+			else if (getScheduleType() == MaintenanceEventVO.TYPE_WEEKLY)
+				expression.append("? * ").append(MaintenanceEventRT.weekdays[day]);
+			else {
+				if (day > 0)
+					expression.append(day);
+				else if (day == -1)
+					expression.append('L');
+				else
+					expression.append(-day).append('L');
+				if (getScheduleType() == MaintenanceEventVO.TYPE_MONTHLY)
+					expression.append(" * ?");
+				else
+					expression.append(' ').append(month).append(" ?");
+			}
+		}
+		CronTimerTrigger cronTrigger;
+		try {
+			cronTrigger = new CronTimerTrigger(expression.toString());
+		} catch (ParseException e) {
+			throw new ShouldNeverHappenException(e);
+		}
+		return cronTrigger;
+	}
 }
